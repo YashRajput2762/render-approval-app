@@ -1,32 +1,32 @@
 const express = require("express");
-const path = require("path");
 const { Pool } = require("pg");
+const path = require("path");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Database connection
+// Postgres connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }
 });
 
 // Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public"))); // public folder serve karega
+app.use(express.static(path.join(__dirname, "public")));
 
-// Example route (testing)
-app.get("/api/test", async (req, res) => {
+// Example API
+app.get("/api/requests", async (req, res) => {
   try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({ time: result.rows[0] });
+    const result = await pool.query("SELECT * FROM requests");
+    res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Database error" });
+    res.status(500).send("DB error");
   }
 });
 
-// Start server
-const PORT = process.env.PORT || 10000;
+// Start
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
